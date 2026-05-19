@@ -27,6 +27,7 @@ class ProjectController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
+            'images' => 'nullable|array|max:5', // Limit to 5 images per project
             'images.*' => 'nullable|image|max:2048',
             'tech_stack' => 'required|string',
             'github_url' => 'nullable|url',
@@ -64,6 +65,7 @@ class ProjectController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
+            'images' => 'nullable|array|max:5', // Limit to 5 images per project
             'images.*' => 'nullable|image|max:2048',
             'tech_stack' => 'required|string',
             'github_url' => 'nullable|url',
