@@ -9,7 +9,7 @@ class Project extends Model
     protected $fillable = [
         'title',
         'description',
-        'image_url',
+        'images',
         'tech_stack',
         'github_url',
         'live_url',
@@ -17,6 +17,7 @@ class Project extends Model
     ];
 
     protected $casts = [
+        'images' => 'array',
         'tech_stack' => 'array',
         'is_featured' => 'boolean',
     ];

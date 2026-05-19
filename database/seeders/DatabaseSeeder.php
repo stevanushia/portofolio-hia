@@ -14,10 +14,20 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Seed Admin User
+        User::updateOrCreate(
+            ['email' => 'admin@hia.com'],
+            [
+                'name' => 'Stevanus Hia',
+                'password' => bcrypt('password'), // Change this immediately after first login
+            ]
+        );
+
         // Seed Projects
         Project::create([
             'title' => 'E-commerce Platform',
             'description' => 'A high-performance e-commerce solution built with Laravel and Vue 3. Featuring real-time inventory and AI-driven recommendations.',
+            'images' => [],
             'tech_stack' => ['Laravel', 'Vue.js', 'PostgreSQL', 'Tailwind CSS'],
             'is_featured' => true,
         ]);
@@ -25,6 +35,7 @@ class DatabaseSeeder extends Seeder
         Project::create([
             'title' => 'AI Prompt Optimizer',
             'description' => 'A tool that leverages LLMs to refine and optimize engineering prompts for better code generation results.',
+            'images' => [],
             'tech_stack' => ['React', 'Node.js', 'OpenAI API', 'TypeScript'],
             'is_featured' => true,
         ]);

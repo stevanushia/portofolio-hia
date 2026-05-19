@@ -14,12 +14,22 @@ const form = useForm({
     _method: 'PUT',
     title: props.project.title,
     description: props.project.description,
-    image: null,
+    images: [], // This will hold NEWLY uploaded files
     tech_stack: props.project.tech_stack_string,
     github_url: props.project.github_url || '',
     live_url: props.project.live_url || '',
     is_featured: props.project.is_featured,
 });
+
+const handleImageUpload = (event) => {
+    const files = Array.from(event.target.files);
+    form.images = [...form.images, ...files];
+    event.target.value = '';
+};
+
+const removeQueuedImage = (index) => {
+    form.images.splice(index, 1);
+};
 
 const submit = () => {
     // We use post with _method: 'PUT' for file uploads in Laravel/Inertia
@@ -68,17 +78,36 @@ const submit = () => {
                             </div>
 
                             <div>
-                                <InputLabel for="image" value="Project Image (leave empty to keep current)" />
-                                <div v-if="project.image_url" class="mb-2">
-                                    <img :src="project.image_url" class="h-20 w-auto rounded-lg shadow-sm" alt="Current image" />
+                                <InputLabel for="images" value="Add Project Images (optional)" />
+                                <div v-if="project.images && project.images.length" class="flex flex-wrap gap-2 mb-4">
+                                    <div v-for="(img, index) in project.images" :key="index" class="relative group">
+                                        <img :src="img" class="h-20 w-auto rounded-lg shadow-sm" alt="Project image" />
+                                    </div>
                                 </div>
+
                                 <input
-                                    id="image"
+                                    id="images"
                                     type="file"
+                                    multiple
                                     class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:text-gray-400 dark:file:bg-gray-700 dark:file:text-gray-300"
-                                    @input="form.image = $event.target.files[0]"
+                                    @change="handleImageUpload"
                                 />
-                                <InputError class="mt-2" :message="form.errors.image" />
+                                <InputError class="mt-2" :message="form.errors.images" />
+
+                                <div v-if="form.images.length > 0" class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    <div v-for="(file, index) in form.images" :key="index" class="relative group aspect-square rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+                                        <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                            <button @click.prevent="removeQueuedImage(index)" class="text-white bg-red-600 rounded-full p-1 hover:bg-red-700">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                        <div class="w-full h-full flex items-center justify-center bg-gray-50 dark:bg-gray-900 text-[10px] text-gray-500 p-2 text-center break-all">
+                                            {{ file.name }}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <div>

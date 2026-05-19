@@ -27,19 +27,22 @@ class ProjectController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'image' => 'nullable|image|max:2048',
-            'tech_stack' => 'required|string', // Will be converted to array
+            'images.*' => 'nullable|image|max:2048',
+            'tech_stack' => 'required|string',
             'github_url' => 'nullable|url',
             'live_url' => 'nullable|url',
             'is_featured' => 'boolean',
         ]);
 
-        if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('projects', 'public');
-            $validated['image_url'] = Storage::url($path);
+        $imagePaths = [];
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $file) {
+                $path = $file->store('projects', 'public');
+                $imagePaths[] = Storage::url($path);
+            }
         }
+        $validated['images'] = $imagePaths;
 
-        // Convert comma-separated string to array
         $validated['tech_stack'] = array_map('trim', explode(',', $validated['tech_stack']));
 
         Project::create($validated);
@@ -49,7 +52,6 @@ class ProjectController extends Controller
 
     public function edit(Project $project)
     {
-        // Convert array back to comma-separated string for the form
         $project->tech_stack_string = implode(', ', $project->tech_stack);
 
         return Inertia::render('Admin/Projects/Edit', [
@@ -62,23 +64,23 @@ class ProjectController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'image' => 'nullable|image|max:2048',
+            'images.*' => 'nullable|image|max:2048',
             'tech_stack' => 'required|string',
             'github_url' => 'nullable|url',
             'live_url' => 'nullable|url',
             'is_featured' => 'boolean',
         ]);
 
-        if ($request->hasFile('image')) {
-            // Delete old image if exists
-            if ($project->image_url) {
-                $oldPath = str_replace('/storage/', '', $project->image_url);
-                Storage::disk('public')->delete($oldPath);
+        $imagePaths = $project->images ?? [];
+        if ($request->hasFile('images')) {
+            // If new images are uploaded, we append them in this simple implementation.
+            // A more advanced one might allow individual deletion.
+            foreach ($request->file('images') as $file) {
+                $path = $file->store('projects', 'public');
+                $imagePaths[] = Storage::url($path);
             }
-
-            $path = $request->file('image')->store('projects', 'public');
-            $validated['image_url'] = Storage::url($path);
         }
+        $validated['images'] = $imagePaths;
 
         $validated['tech_stack'] = array_map('trim', explode(',', $validated['tech_stack']));
 
@@ -89,9 +91,11 @@ class ProjectController extends Controller
 
     public function destroy(Project $project)
     {
-        if ($project->image_url) {
-            $oldPath = str_replace('/storage/', '', $project->image_url);
-            Storage::disk('public')->delete($oldPath);
+        if ($project->images) {
+            foreach ($project->images as $imageUrl) {
+                $path = str_replace('/storage/', '', $imageUrl);
+                Storage::disk('public')->delete($path);
+            }
         }
 
         $project->delete();
