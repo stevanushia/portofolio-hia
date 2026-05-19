@@ -70,7 +70,7 @@ defineProps({
                 </div>
 
                 <div v-if="projects.length" class="grid md:grid-cols-2 gap-8">
-                    <div v-for="project in projects" :key="project.id" class="group cursor-pointer">
+                    <Link v-for="project in projects" :key="project.id" :href="route('project.show', project.id)" class="group cursor-pointer">
                         <div class="aspect-video mb-6 overflow-hidden rounded-2xl bg-gray-100 dark:bg-zinc-900 border border-[#e5e5e5] dark:border-[#1a1a1a]">
                             <img v-if="project.image_url" :src="project.image_url" :alt="project.title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                             <div v-else class="w-full h-full flex items-center justify-center text-gray-300 dark:text-zinc-800">
@@ -86,7 +86,7 @@ defineProps({
                                 {{ tech }}
                             </span>
                         </div>
-                    </div>
+                    </Link>
                 </div>
                 
                 <div v-else class="py-20 text-center border-2 border-dashed border-[#e5e5e5] dark:border-[#1a1a1a] rounded-3xl">

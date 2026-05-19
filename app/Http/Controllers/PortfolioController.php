@@ -23,4 +23,13 @@ class PortfolioController extends Controller
             'phpVersion' => PHP_VERSION,
         ]);
     }
+
+    public function show(Project $project)
+    {
+        return Inertia::render('Project', [
+            'project' => $project,
+            'canLogin' => Route::has('login'),
+            'canRegister' => Route::has('register'),
+        ]);
+    }
 }
